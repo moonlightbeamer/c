@@ -1,0 +1,85 @@
+/*large program example: Goldbach's conjecture
+every even integer that is greater than 2 can be expressed as a sum of 2 prime
+number integers prime number: a number divisible by itself and 1 only, e.g. 2,
+3, 5, 7, 11...
+
+
+write a program that asks for even number > 2 and checks if the conjecture holds
+
+main steps:
+1) get input from user
+2) get conjecture -- TOday
+    a) toy example: 12 (even number>2)
+    b) think! how can i represent the number twelve in terms of two numbers,
+    check that they are prime 12 = x + y;
+    step 1: let x be prime get x to be the 1st prime # e.g. 2
+    step 2: get y: y = 12 - x
+    step 3: check if y is prime
+            --> if yes, yay
+            --> if no, then get the next prime number in x.
+       repeat (2-3) until conjecture is verified or when (x>y), then the
+conjecture is rejected
+
+prime # (x)     12 - x = y      result
+2               12 - 2 = 10     NO
+3               12 - 3 = 9      NO
+5               12 - 5 = 7      YES, the goldbach's conjecture is verified
+7               12 - 7 = 5
+stop when x>y
+       or x>(12/2)
+*/
+#include <stdbool.h>
+#include <stdio.h>
+
+testGoldbach(int N) {
+  int x = 2;
+  int y;
+  bool rejected = false, verified = false;
+  while (!rejected && !verified) {
+    y = N - x;
+    if (/*y is prime*/) {
+      // conjecture is verified
+      verified = true;
+    } else if (x > y) {
+      // reject the conjecture
+      rejected = true;
+    } else {
+      x = nextPrimeNumber;
+    }
+  }
+}
+
+/* implement a function that checks if y is prime:
+1) If y is divisible by any # btwn 1 and y (non-inclusive) ==> not prime
+2) y < 2 ==> not prime
+*/
+
+bool isPrime (int num){
+    bool prime = true;
+    for (int denom = 2; prime && denom < num; denom++){
+        if(num%denom == o){
+            prime = false;
+        }
+    }
+    if (num < 2){
+        prime = false;
+    }
+}
+
+/*
+implement the nextPrimeNumber: thatj loops between all prime numbers
+x = 2
+1) add +1 to x
+2) check if x is prime
+3) repeat (1-2) until x becomes prime!
+
+exit the repetition when x becomes prime
+*/
+
+void nextPrimeNumber(int*px){
+  int value = *px;
+  while(!isPrime(value)){ //while the value is not prime
+    value += 1;
+  }
+  *px = value;
+}
