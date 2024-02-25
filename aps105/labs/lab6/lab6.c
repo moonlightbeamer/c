@@ -32,17 +32,25 @@ int main(void) {
   return 0;
 }
 
-void search(const int Size, char puzzle[][Size], const int wordSize,
-            char* word) {}
+void search(const int Size, char puzzle[][Size], const int wordSize, char* word) {
+  for (int index; index < wordSize; index++){
+    for (int row = 0; row < Size; row++) {
+      for (int col = 0; col < Size; col++) {
+        if (puzzle[row][col] == word[index]){
+            
+        }
+      }
+    }
+  }
+}
 
 char* readWord(int* wordSize) {
   printf("How many characters are there in the word?\n");
-  scanf(" %d", *wordSize);
-  char* wordToFind = (char*)malloc(
-      *wordSize * sizeof(char));  // dynamically allocating an array
+  scanf(" %d", wordSize);
+  char* wordToFind = (char*)malloc(*wordSize * sizeof(char));  // dynamically allocating an array ==> i actually don't know what i'm doing here
   printf("What is the word that you are looking for?\n");
-  for (int index = 0; index < &wordSize; index++) {  // why is it skipping this?
-    scanf(" %c", wordToFind[index]);
+  for (int index = 0; index < *wordSize; index++) {  
+    scanf(" %c", &wordToFind[index]);
   }
   return wordToFind;
 }
@@ -59,6 +67,7 @@ void readWordPuzzle(const int Size, char puzzle[][Size]) {
 bool inBounds(int row, int col, const int Size) {}
 
 void printWordPuzzle(const int Size, char puzzle[][Size]) {
+  printf("The word puzzle entered is\n");
   for (int row = 0; row < Size; row++) {
     for (int col = 0; col < Size; col++) {
       printf("%c ", puzzle[row][col]);
