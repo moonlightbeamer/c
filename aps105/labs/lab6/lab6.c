@@ -40,85 +40,107 @@ int main(void) {
 
 void search(const int Size, char puzzle[][Size], const int wordSize,
             char* word) {
+  // keeps track of whether word was found or not
+
+  // loops through row and columns; through every element
   for (int row = 0; row < Size; row++) {
     for (int col = 0; col < Size; col++) {
+      // if found match for first character
       if (puzzle[row][col] == word[0]) {
-        // 5 4 3
-        // 6 * 2
-        // 7 8 1
+        // loop to input all directions in check1D
         for (int dir = 1; dir <= 8; dir++) {
           // check1D checks for the entire word in one direction.
-          if (check1D(Size, puzzle, wordSize, word, row, col,
-                      dir)) {  // if check1D returns true = if entire word is
-                               // found in that direction...
-            // problem: why is it printing it out every single fucking time
+          if (check1D(Size, puzzle, wordSize, word, row, col, dir)) {
+            // if whole word found in that direction
             printWord(word, wordSize);
             printf(" can be found at row , col = (%d, %d) in the ", row + 1,
                    col + 1);
             printDirection(dir);
             printf("direction.\n");
+
+            // return to main
+            return;
           }
         }
       }
     }
   }
+
+  // after done looping through every element to check first letter
+  // if word isn't found, if did not exit out of function...
+  printWord(word, wordSize);
+  printf(" cannot be found!\n");
 }
 
 bool check1D(const int Size, char puzzle[][Size], const int wordSize,
              char* word, int rowLoc, int colLoc, int dir) {
   // pass current row first letter was found to rowLoc, current col first letter
   // was found col to colLoc (row, col) char* word holds address to word that
-  // user wants to find dir = assign each direction a number 5 4 3 6   2 7 8 1
+  // user wants to find dir = assign each direction a number
+  // 5 4 3
+  // 6 * 2
+  // 7 8 1
+
   bool charMatch = true;  // charMatch = true/1
   int index = 1;
+
   while (charMatch && index < wordSize) {
-    // checking: if you add (# of letters in word) to current index (r,c), will
-    // it go over the dimensions of the word search? flawed because what if
-    // you're going backwards. if (inBounds(rowLoc+wordSize-1,
-    // colLoc+wordSize-1, Size)){
-    if (dir == 1) {  // south-east
+    // for some reason doesn't work. i bet inBounds doesn't work.
+    // if (inBounds(rowLoc + index, colLoc + index, Size) &&
+    //     inBounds(rowLoc - index, colLoc - index, Size)) {
+    //   continue;
+    // } else {
+    //   charMatch = false;
+    // }
+
+    if (dir == 1 &&
+        inBounds(rowLoc + index, colLoc + index, Size)) {  // south-east
       // if it matches, charMatch still == 1 and the loop will continue. if not,
       // charMatch == 0 and loop exits
       charMatch = (puzzle[rowLoc + index][colLoc + index] == word[index]);
 
-    } else if (dir == 2) {  // east
+    } else if (dir == 2 && inBounds(rowLoc, colLoc + index, Size)) {  // east
       charMatch = (puzzle[rowLoc][colLoc + index] == word[index]);
 
-    } else if (dir == 3) {  // north-east
+    } else if (dir == 3 &&
+               inBounds(rowLoc - index, colLoc + index, Size)) {  // north-east
       charMatch = (puzzle[rowLoc - index][colLoc + index] == word[index]);
 
-    } else if (dir == 4) {  // north
+    } else if (dir == 4 && inBounds(rowLoc - index, colLoc, Size)) {  // north
       charMatch = (puzzle[rowLoc - index][colLoc] == word[index]);
 
-    } else if (dir == 5) {  // north-west
+    } else if (dir == 5 &&
+               inBounds(rowLoc - index, colLoc - index, Size)) {  // north-west
       charMatch = (puzzle[rowLoc - index][colLoc - index] == word[index]);
 
-    } else if (dir == 6) {  // west
+    } else if (dir == 6 && inBounds(rowLoc, colLoc - index, Size)) {  // west
       charMatch = (puzzle[rowLoc][colLoc - index] == word[index]);
 
-    } else if (dir == 7) {  // south-west
+    } else if (dir == 7 &&
+               inBounds(rowLoc + index, colLoc - index, Size)) {  // south-west
       charMatch = (puzzle[rowLoc + index][colLoc - index] == word[index]);
 
-    } else if (dir == 7) {  // south
+    } else if (dir == 8 && inBounds(rowLoc + index, colLoc, Size)) {  // south
       charMatch = (puzzle[rowLoc + index][colLoc] == word[index]);
+    } else {
+      charMatch = false;
     }
     index++;
-    //}
   }
+
   return charMatch;
 }
 
-// figure out how to implement this
+// checks if you're at the end of a word search
+// if for example you're going east,
+// inbounds makes sure the search doesn't "bleed" into the next column
+// implement in check1D!
 bool inBounds(int row, int col,
               const int Size) {  // passed from wherever in the word search the
                                  // search function currently is at
   bool isinBound = true;
-  while (isinBound) {  // ininBound = true until otherwise
-    // logic behind this function: checks if the current (r,c) index is valid
-    // within the word search
-    if (row >= Size || col >= Size || row < 0 || col < 0) {
-      isinBound = false;
-    }
+  if (row >= Size || col >= Size || row < 0 || col < 0) {
+    isinBound = false;
   }
   return isinBound;
 }
@@ -142,7 +164,7 @@ void printDirection(int dir) {  // prints space afterwards
     printf("north-west ");
 
   } else if (dir == 6) {
-    printf("west");
+    printf("west ");
 
   } else if (dir == 7) {
     printf("south-west ");
