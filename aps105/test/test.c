@@ -315,8 +315,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// int main(){
+//   bool eek = false;
+//   eek = ((1+1)==2); //eek = true;
+//   printf("the statement 1+1=2 is: %d", eek);
+// }
+
 int main(){
-  bool eek = false;
-  eek = ((1+1)==2); //eek = true;
-  printf("the statement 1+1=2 is: %d", eek);
+  printf("  ");
+    for(char colLetter = 'a'; ((int)colLetter - (int)'a' + 1) <= 4; colLetter++){
+        printf("%c", colLetter);
+    }
 }

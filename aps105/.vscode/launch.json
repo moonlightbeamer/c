@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/angel/OneDrive - HUST Alumni Association of Canada/Documents/GitHub/c/aps105/labs/lab6",
-      "program": "c:/Users/angel/OneDrive - HUST Alumni Association of Canada/Documents/GitHub/c/aps105/labs/lab6/build/Debug/outDebug",
+      "cwd": "c:/Users/angel/OneDrive - HUST Alumni Association of Canada/Documents/GitHub/c/aps105/labs/lab7",
+      "program": "c:/Users/angel/OneDrive - HUST Alumni Association of Canada/Documents/GitHub/c/aps105/labs/lab7/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
