@@ -311,19 +311,11 @@
 //   printf("You rotated your digits anticlockwise %d times to be %d", rotations, num);
 // }
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-// int main(){
-//   bool eek = false;
-//   eek = ((1+1)==2); //eek = true;
-//   printf("the statement 1+1=2 is: %d", eek);
-// }
-
-int main(){
-  printf("  ");
-    for(char colLetter = 'a'; ((int)colLetter - (int)'a' + 1) <= 4; colLetter++){
-        printf("%c", colLetter);
-    }
+#include <stdio.h>  
+ 
+int main(void) {
+  int eek = 0;
+  char letter = eek+97;
+  printf("%c", letter);
+  return 0;
 }
