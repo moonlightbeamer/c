@@ -6,6 +6,65 @@
 
 #include <stdio.h>
 
+void printAvailableMoves(char board[][26], int n, char player);
+
+bool moveIsLegal(char board[][26], int n, char player, int row, int col);
+
+void flipTiles(char board[][26], int n, char player);
+
+int main(void) {
+  int n;
+  char board[26][26];
+
+  // asking for user input
+  printf("Enter the board dimension: ");
+  scanf(" %d", &n);
+
+  // initializing board
+  for (int row = 0; row < n; row++) {
+    for (int col = 0; col < n; col++) {
+      if ((row == n / 2 && col == n / 2) ||
+          (row == n / 2 - 1 && col == n / 2 - 1)) {
+        board[row][col] = 'W';  // white
+      } else if ((row == n / 2 - 1 && col == n / 2) ||
+                 (row == n / 2 && col == n / 2 - 1)) {
+        board[row][col] = 'B';  // black
+      } else {
+        board[row][col] = 'U';
+      }
+    }
+  }
+
+  // printing board
+  printBoard(board, n);
+
+  // prompt user to enter board configuration
+  char player, rowLetter, colLetter;
+  int row, col;
+  printf("Enter board configuration:\n");
+  scanf(" %c%c%c", &player, &rowLetter, &colLetter);
+  while (player != '!' && rowLetter != '!' && colLetter != '!') {
+    row = rowLetter - 97;
+    col = colLetter - 97;
+    board[row][col] = player;
+    scanf(" %c%c%c", &player, &rowLetter, &colLetter);
+  }
+
+  // printing board
+  printBoard(board, n);
+
+  // print available moves
+  // white
+  player = 'W';
+  printAvailableMoves(board, n, player);
+
+  // black
+  player = 'B';
+  printAvailableMoves(board, n, player);
+
+  return 0;
+}
+
 void printBoard(char board[][26], int n) {
   // printing abcd column identifier
   printf("  ");
@@ -49,10 +108,12 @@ bool positionInBounds(int n, int row, int col) {
 
 bool checkLegalInDirection(char board[][26], int n, int row, int col,
                            char colour, int deltaRow, int deltaCol) {
-  // if (1) not in bounds or
-  // if (2) not the opposite colour
-  // for example: if the colour we are is WHITE --> if the neighbour is NOT
-  // BLACK means... (a) the neighbour is white or (b) the neighbour is U
+  // false if...
+  // (1) not in bounds or
+  // (2) not the opposite colour
+  // for example:
+  // if the colour we are is WHITE --> if the neighbour is NOT BLACK means...
+  // (a) the neighbour is white or (b) the neighbour is U
   if (!positionInBounds(n, row + deltaRow, col + deltaCol) ||
       board[row + deltaRow][col + deltaCol] == colour ||
       board[row + deltaRow][col + deltaCol] == 'U') {
@@ -73,12 +134,11 @@ bool checkLegalInDirection(char board[][26], int n, int row, int col,
     // if (3) return true;
 
     // this means while loop continues while
-    //(1) position in bound
-    //(2) position is NOT unoccupied
-    // and if (3) then
+    //(A) position in bound
+    //(B) position is NOT unoccupied
 
     while (positionInBounds(n, row + i * deltaRow, col + i * deltaCol) ||
-           board[row + deltaRow][col + deltaCol] != 'U') {
+           board[row + i * deltaRow][col + i * deltaCol] != 'U') {
       // if (3) is met, then true
       if (board[row + i * deltaRow][col + i * deltaCol] == colour) {
         return true;
@@ -86,8 +146,8 @@ bool checkLegalInDirection(char board[][26], int n, int row, int col,
       i++;
     }
     // if loop exits without hitting our colour (without returning true)
-    // that means one of the conditions weren't met anymore --> (1) or (2) is
-    // met, false
+    // that means one of the conditions weren't met anymore
+    // (1) or (2) is met, false
     return false;
   }
 }
@@ -191,59 +251,6 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
 }
 
 void flipTiles(char board[][26], int n, char player) {}
-
-int main(void) {
-  int n;
-  char board[26][26];
-
-  // asking for user input
-  printf("Enter the board dimension: ");
-  scanf(" %d", &n);
-
-  // initializing board
-  for (int row = 0; row < n; row++) {
-    for (int col = 0; col < n; col++) {
-      if ((row == n / 2 && col == n / 2) ||
-          (row == n / 2 - 1 && col == n / 2 - 1)) {
-        board[row][col] = 'W';  // white
-      } else if ((row == n / 2 - 1 && col == n / 2) ||
-                 (row == n / 2 && col == n / 2 - 1)) {
-        board[row][col] = 'B';  // black
-      } else {
-        board[row][col] = 'U';
-      }
-    }
-  }
-
-  // printing board
-  printBoard(board, n);
-
-  // prompt user to enter board configuration
-  char player, rowLetter, colLetter;
-  int row, col;
-  printf("Enter board configuration:\n");
-  scanf(" %c%c%c", &player, &rowLetter, &colLetter);
-  while (player != '!' && rowLetter != '!' && colLetter != '!') {
-    row = rowLetter - 97;
-    col = colLetter - 97;
-    board[row][col] = player;
-    scanf(" %c%c%c", &player, &rowLetter, &colLetter);
-  }
-
-  // printing board
-  printBoard(board, n);
-
-  // print available moves
-  // white
-  player = 'W';
-  printAvailableMoves(board, n, player);
-
-  // black
-  player = 'B';
-  printAvailableMoves(board, n, player);
-
-  return 0;
-}
 
 // peseudocode
 
