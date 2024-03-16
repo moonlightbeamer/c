@@ -10,7 +10,7 @@ void printAvailableMoves(char board[][26], int n, char player);
 
 bool moveIsLegal(char board[][26], int n, char player, int row, int col);
 
-void flipTiles(char board[][26], int n, char player);
+void flipTiles(char board[][26], int n, char player, int row, int col);
 
 int main(void) {
   int n;
@@ -61,6 +61,25 @@ int main(void) {
   // black
   player = 'B';
   printAvailableMoves(board, n, player);
+
+  // prompt user to enter move to make
+  printf("Enter a move:\n");
+  scanf(" %c%c%c", &player, &rowLetter, &colLetter);
+
+  // changing abcd to numbers
+  row = rowLetter - 97;
+  col = colLetter - 97;
+
+  // checking move is legal
+  if (moveIsLegal(board, n, player, row, col)) {
+    printf("Valid move.\n");
+    flipTiles(board, n, player, row, col);
+  } else {
+    printf("Invalid move.\n");
+  }
+
+  // print final board configuration
+  printBoard(board, n);
 
   return 0;
 }
@@ -135,9 +154,10 @@ bool checkLegalInDirection(char board[][26], int n, int row, int col,
 
     // this means while loop continues while
     //(A) position in bound
+    // AND
     //(B) position is NOT unoccupied
 
-    while (positionInBounds(n, row + i * deltaRow, col + i * deltaCol) ||
+    while (positionInBounds(n, row + i * deltaRow, col + i * deltaCol) &&
            board[row + i * deltaRow][col + i * deltaCol] != 'U') {
       // if (3) is met, then true
       if (board[row + i * deltaRow][col + i * deltaCol] == colour) {
@@ -172,7 +192,7 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   // if the position is unoccupied or if move legal
   //(1) if space is filled with B or W, not legal
   if (board[row][col] == 'B' || board[row][col] == 'W') {
-    printf("Position (%d, %d) is occupied. Returning false.\n", row, col);
+    // printf("Position (%d, %d) is occupied. Returning false.\n", row, col);
     return false;
   }
 
@@ -185,8 +205,10 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   int deltaCol = 1;
   // if the move is legal in this direction
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
-    printf("Legal move found in south-east direction (%d, %d).\n", deltaRow,
-           deltaCol);
+    // printf(
+    //     "Legal move at position (%d, %d) found in south-east direction (%d, "
+    //     "%d).\n",
+    //     row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -194,8 +216,9 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = 0;
   deltaCol = 1;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
-    printf("Legal move found in east direction (%d, %d).\n", deltaRow,
-           deltaCol);
+    // printf(
+    //     "Legal move found at position (%d, %d) in east direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -203,8 +226,10 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = -1;
   deltaCol = 1;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
-    printf("Legal move found in north-east direction (%d, %d).\n", deltaRow,
-           deltaCol);
+    // printf(
+    //     "Legal move found at position (%d, %d) in north-east direction (%d, "
+    //     "%d).\n",
+    // row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -212,8 +237,9 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = -1;
   deltaCol = 0;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
-    printf("Legal move found in north direction (%d, %d).\n", deltaRow,
-           deltaCol);
+    // printf(
+    //     "Legal move found at position (%d, %d) in north direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -221,6 +247,10 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = -1;
   deltaCol = -1;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in north-west direction (%d, "
+    //     "%d).\n",
+    //     row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -228,6 +258,9 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = 0;
   deltaCol = -1;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in west direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -235,6 +268,8 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = 1;
   deltaCol = -1;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf("Legal move found at position (%d, %d) in south-west direction
+    // (%d, %d).\n", row, col, deltaRow, deltaCol);
     return true;
   }
 
@@ -242,59 +277,23 @@ bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
   deltaRow = 1;
   deltaCol = 0;
   if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in south direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
     return true;
   }
 
   // if nothing has been returned yet
   // if position is unoccupied, but not legal in any 8 directions
+  // printf(
+  //     "Position (%d, %d) is unoccupied, but not legal in any 8
+  //     directions.\n", row, col);
   return false;
 }
 
-void flipTiles(char board[][26], int n, char player) {}
-
-// peseudocode
-
-// declare 26x26 2d array
-// initialize the board
-
-// print the board                                            1 function
-
-// enter board configurations Bac
-
-// print available moves for white                            1 function
-// go through all positions and check if move is valid
-// MOVE IS VALID                                           CHECKVALIDANDFLIP
-// if position is occupied - invalid
-// if position is not occupied
-// is the move legal? (should flip some tiles)     1 function
-// move legal for a particular position
-// for each of the 8 directions            CHECKLEGALINDIRECTION
-// check if the neighbouring piece is opposite of the current colour
-// neighbouring position:
-//(1) must be within bounds of the array
-// if not --> not legal direction, return false
-//(2) must be an opposite colour
-// if not --> not legal direction, return false
-// if in bounds && opposite color
-// let's walk further in this direction
-// row + i*deltaRow
-// col + i*deltaCOl
-// till:
-//(1) hit edge of the board --> return false
-//(2) hit unoccupied position --> return false
-//(3) hit your colour --> this amke direction and position an available move -->
-// return true
-// CHECKLEGALINDIRECTIOn returns true
-// move is legal
-
-// print available moves for black                            1 function
-
-// ask user to enter a move
-// if move is valid                                            POSITIONINBOUND
-// (check if row, col are within bounds ) print "valid move" flip tiles along 8
-// direction through checking LEGALINDIRECTION flip tiles only when the
-// direction is legal implement function can flip if we want to flip can check
-// only if we want to check            CHECKVALIDANDFLIP
-// else
-// print invalid move
-// print the board                                               1 function
+void flipTiles(char board[][26], int n, char player, int row, int col) {
+  if (moveIsLegal(board, n, player, row, col)) {
+    board[row][col] = player;
+    // how to flip the rest of them in the same direction?? :(
+  }
+}
