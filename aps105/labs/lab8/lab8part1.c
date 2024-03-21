@@ -2,7 +2,7 @@
 // Author: Angelina Zhu
 //
 
-#include "reversi.h"
+#include "lab8part1.h"
 
 #include <stdio.h>
 
@@ -11,6 +11,8 @@ void printAvailableMoves(char board[][26], int n, char player);
 bool moveIsLegal(char board[][26], int n, char player, int row, int col);
 
 void flipTiles(char board[][26], int n, char player, int row, int col);
+
+char opponentColour(char player);
 
 int main(void) {
   int n;
@@ -421,4 +423,12 @@ void flipTiles(char board[][26], int n, char player, int row, int col) {
   // printf(
   //     "Position (%d, %d) is unoccupied, but not legal in any 8
   //     directions.\n", row, col);
+}
+
+char opponentColour(char player){
+  if (player == 'B'){
+    return 'W';
+  } else if (player == 'W'){
+    return 'B';
+  }
 }
