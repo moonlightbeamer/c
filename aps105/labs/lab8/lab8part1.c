@@ -2,19 +2,17 @@
 // Author: Angelina Zhu
 //
 
-#include <stdio.h>
+#include "lab8part1.h"
 
-#include "reversi.h"
+#include <stdio.h>
 
 void printAvailableMoves(char board[][26], int n, char player);
 
-int checkValidandFlip(char board[][26], int n, char player, int row, int col, bool flip);
+bool moveIsLegal(char board[][26], int n, char player, int row, int col);
 
-void flipTiles(char board[][26], char player, int row, int col, int deltaRow, int deltaCol, int flippable);
+void flipTiles(char board[][26], int n, char player, int row, int col);
 
-char opponentColour(char player);
-
-bool moveAvailable(int player, char board[][26], int n);
+int flippableScore(int board[][26], int n, char player, int row, int col);
 
 int main(void) {
   int n;
@@ -50,41 +48,14 @@ int main(void) {
   // assigns user colour
   player = opponentColour(computer);
 
-  // printing board
+  //print board
   printBoard(board, n);
 
-  while (true/*game is not over*/){
-    if (turn == computer){
-      //computer makes any legal move
-    } else {
-      //human makes move
-      // prompt user to enter move to make
-      printf("Enter a move for colour %c (RowCol): ", player);
-      scanf(" %c%c", &rowLetter, &colLetter);
-      // changing abcd to numbers
-      row = rowLetter - 97;
-      col = colLetter - 97;
-    }
+  //enter user input
+  //assuming computer is W and player goes first for now
+  printf("Enter move for colour B (RowCol): ");
+  scanf(" %c%c", &row, &col);
 
-    if (true/*game is not over*/){
-      if(true/*moveAvailable(opponentColour(turn))*/){
-        turn = opponentColour(turn);
-      } else if (true/*moveAvailable(turn)*/){
-        turn = turn;
-      } else /*neither player has a move available*/{
-        //game is over
-        //find the winner
-        //exit game
-      }
-    }
-  }
-  // // checking move is legal and flipping if legal
-  // if (checkValidandFlip(board, n, player, row, col)) {
-  //   flipTiles(board, n, player, row, col);
-  // } else {
-  //   printf("Invalid move.\n");
-  //   printf("B");
-  // }
 
   return 0;
 }
@@ -125,26 +96,57 @@ bool positionInBounds(int n, int row, int col) {
 
   bool isinBound = true;
   if (row >= n || col >= n || row < 0 || col < 0) {
-    // ISSUE: checklegal in direction only passes the next value (col+i*deltaCol) and check if in
-    // bounds. doesn't check current value (col) for in bounds when called by checkValidandFlip
+    // ISSUE: checklegal in direction only passes the next value and check if in
+    // bounds. doesn't check current value for in bounds?
     isinBound = false;
   }
   return isinBound;
 }
 
-//returns true if the neighbour we are checking in a direction is in bounds & is the opposite colour
 bool checkLegalInDirection(char board[][26], int n, int row, int col,
                            char colour, int deltaRow, int deltaCol) {
-
-  //true if...
-  // (1) in bounds or
-  // (2) is the opposite colour
-
-  if (positionInBounds(n, row + deltaRow, col + deltaCol) ||
-      board[row + deltaRow][col + deltaCol] == opponentColour(colour)) {
-    return true;
+  // false if...
+  // (1) not in bounds or
+  // (2) not the opposite colour
+  // for example:
+  // if the colour we are is WHITE --> if the neighbour is NOT BLACK means...
+  // (a) the neighbour is white or (b) the neighbour is U
+  if (!positionInBounds(n, row + deltaRow, col + deltaCol) ||
+      board[row + deltaRow][col + deltaCol] == colour ||
+      board[row + deltaRow][col + deltaCol] == 'U') {
+    return false;  // exits this direction, returns to moveIsLegal, moves onto
+                   // next direction
   } else {
-      return false;
+    int i = 2;  // starts at 2 because we already checked the 0th neighbour
+                // (itself) and the 1st neighbour (adjacent)
+
+    // the neighbour is the opposite colour --> want to keep checking in that
+    // direction
+
+    // want to loop until
+    //(1) hit edge of board
+    //(2) hit unoccupied position
+    // if (1) or (2) return false
+    //(3) hit our colour
+    // if (3) return true;
+
+    // this means while loop continues while
+    //(A) position in bound
+    // AND
+    //(B) position is NOT unoccupied
+
+    while (positionInBounds(n, row + i * deltaRow, col + i * deltaCol) &&
+           board[row + i * deltaRow][col + i * deltaCol] != 'U') {
+      // if (3) is met, then true
+      if (board[row + i * deltaRow][col + i * deltaCol] == colour) {
+        return true;
+      }
+      i++;
+    }
+    // if loop exits without hitting our colour (without returning true)
+    // that means one of the conditions weren't met anymore
+    // (1) or (2) is met, false
+    return false;
   }
 }
 
@@ -154,7 +156,7 @@ void printAvailableMoves(char board[][26], int n, char player) {
   for (int row = 0; row < n; row++) {
     for (int col = 0; col < n; col++) {
       // if move is legal
-      if (checkValidandFlip(board, n, player, row, col, false)) {
+      if (moveIsLegal(board, n, player, row, col)) {
         char rowLetter = row + 97;
         char colLetter = col + 97;
         printf("%c%c\n", rowLetter, colLetter);
@@ -164,136 +166,301 @@ void printAvailableMoves(char board[][26], int n, char player) {
   }
 }
 
-//checks that tiles can be flipped in each direction (and flipping if prompted)
-int checkValidandFlip(char board[][26], int n, char player, int row, int col, bool flip) {
-
+bool moveIsLegal(char board[][26], int n, char player, int row, int col) {
+  // if the position is unoccupied or if move legal
   //(1) if space is filled with B or W, not legal
-  if (board[row][col] == player || board[row][col] == opponentColour(player) || !positionInBounds(n, row, col)) {
-    return 0;
+  if (board[row][col] == 'B' || board[row][col] == 'W' ||
+      !positionInBounds(n, row, col)) {
+    // FIX: checked position in bounds for current ORIGIN
+    // printf("Position (%d, %d) is occupied. Returning false.\n", row, col);
+    return false;
   }
 
   //(2) if space is a legal move for player, legal
 
   // checking legal for all 8 directions
 
-    //keeps track of how many tiles forward in a direction the checklegalindirection has checked
-    int i = 0;
+  // south-east
+  int deltaRow = 1;
+  int deltaCol = 1;
+  // if the move is legal in this direction
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move at position (%d, %d) found in south-east direction (%d, "
+    //     "%d).\n",
+    //     row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-    //keeps track of how many tiles can be flipped
-    int score = 0;
+  // east
+  deltaRow = 0;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in east direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-    //keeps track of if this direction can be flipped
-    bool canFlip = true;
+  // north-east
+  deltaRow = -1;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in north-east direction (%d, "
+    //     "%d).\n",
+    // row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-    // south-east
-    int deltaRow = 1;
-    int deltaCol = 1;
-    
-    //checking for the first neighbour first (it must be opposite colour to proceed)
-    if (board[row+deltaRow][col+deltaCol] == opponentColour(player)){
-      
-      //increment to second neighbour
-      i++;
-      
-      //condition to keep checking in direction: ????
-      while (true){
-        // if the move is legal in this direction at the ith neighbour
-        if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)){
-          score++;
-          i++;
-        } else {
-          canFlip = false;
-          break;
-        }
-      }
+  // north
+  deltaRow = -1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in north direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-      //if prompted to flip AND entire direction is legal --> flip
-      if (flip && canFlip){
-        flipTiles(board, player, row, col, deltaRow, deltaCol, score);
-      }
-    }
+  // north-west
+  deltaRow = -1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in north-west direction (%d, "
+    //     "%d).\n",
+    //     row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-  
+  // west
+  deltaRow = 0;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in west direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-    // resetting i and canflip
-    i = 0;
-    canFlip = true;
-    // east 
-    deltaRow = 0;
-    deltaCol = 1;
+  // south-west
+  deltaRow = 1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf("Legal move found at position (%d, %d) in south-west direction
+    // (%d, %d).\n", row, col, deltaRow, deltaCol);
+    return true;
+  }
 
-
-    // north-east
-    deltaRow = -1;
-    deltaCol = 1;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
-
-    // north
-    deltaRow = -1;
-    deltaCol = 0;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
-
-    // north-west
-    deltaRow = -1;
-    deltaCol = -1;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
-
-    // west
-    deltaRow = 0;
-    deltaCol = -1;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
-
-    // south-west
-    deltaRow = 1;
-    deltaCol = -1;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
-
-    // south
-    deltaRow = 1;
-    deltaCol = 0;
-    if (checkLegalInDirection(board, n, row, col, player, i*deltaRow, i*deltaCol)) {
-      return true;
-    }
+  // south
+  deltaRow = 1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    // printf(
+    //     "Legal move found at position (%d, %d) in south direction (%d,
+    //     %d).\n", row, col, deltaRow, deltaCol);
+    return true;
+  }
 
   // if nothing has been returned yet
   // if position is unoccupied, but not legal in any 8 directions
+  // printf(
+  //     "Position (%d, %d) is unoccupied, but not legal in any 8
+  //     directions.\n", row, col);
   return false;
 }
 
-void flipTiles(char board[][26], char player, int row, int col, int deltaRow, int deltaCol, int flippable) {
-  int flipped = 1;
-  while (flipped<=flippable){
-    board[row + flipped*deltaRow][col + flipped*deltaCol] = player;
-  }
-}
+void flipTiles(char board[][26], int n, char player, int row, int col) {
+  // flipping first tile
+  board[row][col] = player;
 
-char opponentColour(char player) {
-  if (player == 'B') {
-    return 'W';
-  } else if (player == 'W') {
-    return 'B';
-  }
-}
-
-bool moveAvailable(int player, char board[][26], int n){
-  for (int row = 0; row < n; row++){
-    for (int col = 0; col < n; col++){
-      if (checkValidandFlip(board, n, player, row, col, false)){
-        // at least 1 location on the board has an available move for that colour
-        return true;
-      }
+  // checking legal for all 8 directions and flipping
+  // south-east
+  int deltaRow = 1;
+  int deltaCol = 1;
+  // if the move is legal in this direction
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
     }
   }
-  //no locations on board has available move for that colour
-  return false;
+
+  // east
+  deltaRow = 0;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // north-east
+  deltaRow = -1;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // north
+  deltaRow = -1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // north-west
+  deltaRow = -1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // west
+  deltaRow = 0;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // south-west
+  deltaRow = 1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+
+  // south
+  deltaRow = 1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      board[row + i * deltaRow][col + i * deltaCol] = player;
+      i++;
+    }
+  }
+}
+
+int flippableScore(int board[][26], int n, char player, int row, int col){
+
+  // checking legal for all 8 directions and counting flippable tiles
+  // aka the position's "score"
+  int flippableTiles = 0; //counts total flippable tiles if player were to place a tile there
+  
+  // south-east
+  int deltaRow = 1;
+  int deltaCol = 1;
+  // if the move is legal in this direction
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // east
+  deltaRow = 0;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // north-east
+  deltaRow = -1;
+  deltaCol = 1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // north
+  deltaRow = -1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // north-west
+  deltaRow = -1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // west
+  deltaRow = 0;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // south-west
+  deltaRow = 1;
+  deltaCol = -1;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  // south
+  deltaRow = 1;
+  deltaCol = 0;
+  if (checkLegalInDirection(board, n, row, col, player, deltaRow, deltaCol)) {
+    int i = 1;
+    while (board[row + i * deltaRow][col + i * deltaCol] != player) {
+      flippableTiles++;
+      i++;
+    }
+  }
+
+  return flippableTiles;
+
 }
