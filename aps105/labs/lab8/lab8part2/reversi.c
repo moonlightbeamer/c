@@ -585,7 +585,7 @@ int makeMove(const char board[][26], int n, char turn, int *row, int *col) {
               userMoves++;
             }
             if (moveIsLegal(scratchBoard, n, turn, r, c)) {
-              computerMoves = 0;
+              computerMoves++;
             }
           }
         }
@@ -597,7 +597,7 @@ int makeMove(const char board[][26], int n, char turn, int *row, int *col) {
         if ((i == 0 || i == (n - 1)) && (j == 0 || j == (n - 1))) {
           score += 10;  // corner moves are given 2x weight than edge
         }  // prioritizing edge moves
-        else if (i == 0 || i == (n - 1) || j == 0 | j == (n - 1)) {
+        else if (i == 0 || i == (n - 1) || j == 0 || j == (n - 1)) {
           score += 5;
         }
 
