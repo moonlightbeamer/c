@@ -83,6 +83,9 @@ int main(void) {
       // prompt user to enter move to make
       printf("Enter move for colour %c (RowCol): ", user);
       scanf(" %c%c", &rowLetter, &colLetter);
+      // findSmarterMove(board, n, user, &row, &col);
+      // printf("Testing AI move (row, col): %c%c\n", row + 'a', col + 'a');
+
 
       // changing abcd to numbers
       row = rowLetter - 97;
